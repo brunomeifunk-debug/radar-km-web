@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#EB0033">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Radar">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Radar R$/km</title>
+<style>
+:root{--vermelho:#EB0033;--verde:#1FAD68;--amarelo:#FFC347;--azul:#2F80ED;--texto:#1A1A1A;--cinza:#717171;--campo:#F5F5F5;--linha:#E6E6E6;--fundo:#FFFFFF;--sup:#FFFFFF;--verdeClaro:#E8F7EF}
+body.escuro{--texto:#F2F2F2;--cinza:#A3A3A3;--campo:#262626;--linha:#333333;--fundo:#121212;--sup:#1E1E1E;--verdeClaro:#12301F}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--fundo);color:var(--texto);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+#app{max-width:560px;margin:0 auto;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.topo{background:var(--vermelho);color:#fff;padding:calc(20px + env(safe-area-inset-top)) 22px 46px}
+.topo h1{margin:0;font-size:30px}.topo p{margin:4px 0 0;font-size:15px}
+.folha{background:var(--fundo);border-radius:28px 28px 0 0;margin-top:-28px;padding:12px 22px 40px;min-height:60vh}
+.branca{padding:calc(24px + env(safe-area-inset-top)) 22px 40px}
+.titulo{display:flex;align-items:center;justify-content:space-between}.titulo h1{font-size:34px;font-weight:400;margin:0}
+h2{font-size:26px;font-weight:400;margin:28px 0 2px}.sub{color:var(--cinza);font-size:14px;margin:0 0 8px}
+.rot{color:var(--cinza);font-size:13px;margin:14px 0 6px;display:block}
+input,select,textarea{width:100%;border:0;background:var(--campo);color:var(--texto);border-radius:14px;padding:14px 16px;font-size:17px;font-family:inherit;-webkit-appearance:none;appearance:none}
+input[type=date]{min-height:50px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:700;margin-top:14px;background:var(--vermelho);color:#fff;cursor:pointer}
+.btn.sec{background:var(--campo);color:var(--texto)}.btn.verde{background:var(--verde)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:0;border-radius:24px;padding:10px 16px;font-size:14px;background:var(--campo);color:var(--texto);cursor:pointer}
+.chip.on{background:var(--texto);color:var(--fundo)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.card{background:var(--campo);border-radius:16px;padding:14px 16px}.card small{display:block;color:var(--cinza);font-size:13px}.card b{font-size:19px}
+.grande{font-size:38px;font-weight:700;margin:4px 0}
+.linha{display:flex;align-items:center;gap:14px;padding:10px 0;cursor:pointer}
+.bola{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:19px;flex:0 0 auto}
+.meio{flex:1;min-width:0}.meio div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.meio .t{font-size:16px}.meio .s{font-size:13px;color:var(--cinza)}
+.dia{color:var(--cinza);font-size:15px;margin:20px 0 4px}
+.menu{display:flex;align-items:center;padding:16px 0;border:0;background:none;width:100%;color:var(--texto);text-align:left;font-size:18px;cursor:pointer}
+.menu span{flex:1}.menu small{display:block;color:var(--cinza);font-size:13px}.menu i{font-style:normal;color:var(--cinza);font-size:26px}
+.trilho{height:10px;background:var(--linha);border-radius:6px;overflow:hidden}.trilho div{height:100%;border-radius:6px}
+hr{border:0;height:1px;background:var(--linha);margin:24px 0 0}
+.pilula{display:inline-flex;align-items:center;gap:12px;background:var(--sup);color:var(--texto);border-radius:32px;padding:8px 20px 8px 8px;margin-top:20px}
+.pilula .bola{width:44px;height:44px;font-size:14px}
+.ola{display:flex;align-items:center;gap:16px;cursor:pointer}
+.avatar{width:64px;height:64px;border-radius:50%;background:#fff;color:var(--vermelho);font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.faixa{border-radius:32px;padding:16px;text-align:center;font-weight:700;margin-top:16px}
+.barra{position:fixed;left:0;right:0;bottom:0;background:var(--sup);display:flex;align-items:center;height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -2px 12px rgba(0,0,0,.08);z-index:5}
+.barra button{flex:1;border:0;background:none;color:#9E9E9E;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.barra button.on{color:var(--texto);font-weight:700}.barra svg{width:26px;height:26px;fill:currentColor}
+.mais{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));width:64px;height:64px;border-radius:50%;background:var(--vermelho);border:0;box-shadow:0 6px 16px rgba(235,0,51,.35);z-index:6;cursor:pointer}
+.mais svg{width:30px;height:30px;fill:#fff}
+.olho{border:0;background:none;color:var(--vermelho);font-size:22px;cursor:pointer}
+.aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:#323232;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;z-index:9;max-width:90%;text-align:center}
+.entrar{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--vermelho);color:#fff;padding:30px;text-align:center}
+.entrar img{width:110px;height:110px;border-radius:26px}
+.switch{display:flex;align-items:center;justify-content:space-between;padding:18px 0 4px;font-size:15px}
+.switch input{width:auto;transform:scale(1.4)}
+.dupla{display:flex;gap:12px}.dupla>*{flex:1}
+.link{color:var(--vermelho);background:none;border:0;font-size:15px;cursor:pointer;padding:0}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, doc, collection, onSnapshot, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ===== Configuração do Firebase (bloco "firebaseConfig" do app Web no console) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCk35wyRGl6hPBb_bDvCTzl_6jx2IYbnC8",
+  authDomain: "radar-km.firebaseapp.com",
+  projectId: "radar-km",
+  storageBucket: "radar-km.firebasestorage.app",
+  messagingSenderId: "912767427124",
+  appId: "1:912767427124:web:7fc88d00b2b399f6f36061"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+let db;
+try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch (e) { db = getFirestore(app); }
+
+// ===== Dados fixos =====
+const MOTOS = [
+  ["Honda Pop 110i",42,0.07],["Mottu Sport 110i",40,0.07],["Honda Biz 125",42,0.08],["Honda Elite 125",38,0.08],
+  ["Shineray XY / Jet 125",38,0.08],["Honda CG 160 (Start, Fan, Titan)",37,0.09],["Haojue DK / DR 160",36,0.09],
+  ["Yamaha Factor 150",37,0.10],["Yamaha YBR 150",37,0.10],["Yamaha Fazer 150",36,0.10],["Honda Bros 160",36,0.10],
+  ["Yamaha Crosser 150",34,0.11],["Honda PCX 160",38,0.11],["Yamaha NMax 160",36,0.12],["Honda XRE 190",33,0.14],
+  ["Yamaha Fazer 250 (FZ25)",30,0.14],["Yamaha Lander 250",29,0.15],["Honda CB 300F Twister",29,0.15],["Honda Sahara 300 / XRE 300",27,0.17]
+];
+const CAT = {
+  receita: ["Salário","iFood","Extra","Outros"],
+  gasto: ["Moradia","Mercado","Contas","Moto","Lazer","Saúde","Outros"],
+  investimento: ["Reserva","Tesouro","CDB","Ações","Outros"]
+};
+const PAGS = ["Cartão","Débito","Pix","Dinheiro"];
+const COR = { receita: "var(--verde)", gasto: "var(--vermelho)", investimento: "var(--azul)" };
+const ICO = {
+  inicio: '<svg viewBox="0 0 24 24"><path d="M10,20v-6h4v6h5v-8h3L12,3 2,12h3v8z"/></svg>',
+  fin: '<svg viewBox="0 0 24 24"><path d="M11.8,10.9c-2.27,-0.59 -3,-1.2 -3,-2.15 0,-1.09 1.01,-1.85 2.7,-1.85 1.78,0 2.44,0.85 2.5,2.1h2.21c-0.07,-1.72 -1.12,-3.3 -3.21,-3.81V3h-3v2.16c-1.94,0.42 -3.5,1.68 -3.5,3.61 0,2.31 1.91,3.46 4.7,4.13 2.5,0.6 3,1.48 3,2.41 0,0.69 -0.49,1.79 -2.7,1.79 -2.06,0 -2.87,-0.92 -2.98,-2.1h-2.2c0.12,2.19 1.76,3.42 3.68,3.83V21h3v-2.15c1.95,-0.37 3.5,-1.5 3.5,-3.55 0,-2.84 -2.43,-3.81 -4.7,-4.4z"/></svg>',
+  cart: '<svg viewBox="0 0 24 24"><path d="M21,18v1c0,1.1 -0.9,2 -2,2L5,21c-1.11,0 -2,-0.9 -2,-2L3,5c0,-1.1 0.89,-2 2,-2h14c1.1,0 2,0.9 2,2v1h-9c-1.11,0 -2,0.9 -2,2v8c0,1.1 0.89,2 2,2h9zM12,16h10L22,8L12,8v8zM16,13.5c-0.83,0 -1.5,-0.67 -1.5,-1.5s0.67,-1.5 1.5,-1.5 1.5,0.67 1.5,1.5 -0.67,1.5 -1.5,1.5z"/></svg>',
+  ajus: '<svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.07,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.12,5.92 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87C2.62,9.08 2.66,9.34 2.86,9.48l2.03,1.58C4.84,11.36 4.8,11.69 4.8,12s0.02,0.64 0.07,0.94l-2.03,1.58c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/></svg>',
+  mais: '<svg viewBox="0 0 24 24"><path d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>'
+};
+
+// ===== Estado =====
+const S = {
+  user: null, cfg: {}, lanc: [], cart: [], aba: "inicio", carregado: false,
+  ed: null, edMov: null, novoTipo: "gasto",
+  fPer: "semana", fDia: "", fIni: "", fFim: "",
+  cPer: "mes", cMes: 0, cDia: "", cIni: "", cFim: "",
+  oculto: localStorage.getItem("oculto") === "1",
+  tema: parseInt(localStorage.getItem("tema") || "0", 10)
+};
+let desligar = [];
+
+// ===== Utilidades =====
+const BRL = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const reais = v => BRL.format(v || 0);
+const reaisO = v => S.oculto ? "R$ ••••" : reais(v);
+const dec = (v, c = 2) => (v || 0).toLocaleString("pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c });
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const hoje = () => iso(new Date());
+const deIso = s => { const [a, m, d] = s.split("-").map(Number); return new Date(a, m - 1, d, 12); };
+const telaData = s => s ? s.split("-").reverse().join("/") : "";
+const cfgN = (k, p = 0) => typeof S.cfg[k] === "number" ? S.cfg[k] : p;
+const custoKm = () => { const p = cfgN("precoGasolina"), k = cfgN("kmPorLitro"); return (p > 0 && k > 0 ? p / k : 0) + cfgN("manutPorKm"); };
+const ifoodNaCarteira = () => S.cfg.ifoodNaCarteira !== false;
+const pagMoto = () => S.cfg.pagamentoMoto || "Cartão";
+const lucro = l => (l.ganho || 0) - (l.gasolina || 0) - (l.manutencao || 0);
+const gastosL = l => (l.gasolina || 0) + (l.manutencao || 0);
+
+function semana() {
+  const d = new Date(); const dow = (d.getDay() + 6) % 7;
+  const ini = new Date(d.getFullYear(), d.getMonth(), d.getDate() - dow, 12);
+  const fim = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate() + 6, 12);
+  return [iso(ini), iso(fim)];
+}
+function mes(desl) {
+  const d = new Date(); const ini = new Date(d.getFullYear(), d.getMonth() + desl, 1, 12);
+  const fim = new Date(ini.getFullYear(), ini.getMonth() + 1, 0, 12);
+  return [iso(ini), iso(fim)];
+}
+function nomeMes(desl) {
+  const d = new Date(); const x = new Date(d.getFullYear(), d.getMonth() + desl, 1, 12);
+  const s = x.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function nomeDoDia(s) {
+  const d = deIso(s);
+  const diaMes = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "long" });
+  const ont = new Date(); ont.setDate(ont.getDate() - 1);
+  if (s === hoje()) return "Hoje, " + diaMes;
+  if (s === iso(ont)) return "Ontem, " + diaMes;
+  const sem = d.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
+  return sem.charAt(0).toUpperCase() + sem.slice(1) + ", " + diaMes;
+}
+function lerReais(id) {
+  const v = (document.getElementById(id)?.value || "").replace(/\D/g, "");
+  return v ? parseInt(v, 10) / 100 : 0;
+}
+function lerNum(id) {
+  const v = (document.getElementById(id)?.value || "").trim().replace(/\./g, "").replace(",", ".");
+  const n = parseFloat(v); return isNaN(n) ? 0 : n;
+}
+function aviso(t) {
+  const a = document.createElement("div"); a.className = "aviso"; a.textContent = t;
+  document.body.appendChild(a); setTimeout(() => a.remove(), 2600);
+}
+function aplicarTema() {
+  const escuro = S.tema === 2 || (S.tema === 0 && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.body.classList.toggle("escuro", escuro);
+}
+
+// ===== Carteira: expandir repetições e iFood automático =====
+function movsNoPeriodo(ini, fim) {
+  const saida = [];
+  for (const m of S.cart) {
+    if (!m.mensal) { if (m.data >= ini && m.data <= fim) saida.push(m); continue; }
+    const d0 = deIso(m.data); const dia = d0.getDate();
+    let a = d0.getFullYear(), mm = d0.getMonth();
+    const lim = deIso(fim);
+    for (let i = 0; i < 600; i++) {
+      if (a > lim.getFullYear() || (a === lim.getFullYear() && mm > lim.getMonth())) break;
+      const chave = `${a}-${pad(mm + 1)}`;
+      if (m.fimMes && chave > m.fimMes) break;
+      const ult = new Date(a, mm + 1, 0).getDate();
+      const d = `${chave}-${pad(Math.min(dia, ult))}`;
+      if (d >= ini && d <= fim && d >= m.data) saida.push({ ...m, data: d, ocorr: true });
+      mm++; if (mm > 11) { mm = 0; a++; }
+    }
+  }
+  if (ifoodNaCarteira()) {
+    for (const l of S.lanc) {
+      if (l.data < ini || l.data > fim) continue;
+      if ((l.ganho || 0) > 0) saida.push({ id: -l.id, tipo: "receita", categoria: "iFood", valor: l.ganho, data: l.data, descricao: l.obs || "Entregas", pagamento: "", mensal: false, origem: l.id });
+      if (gastosL(l) > 0) saida.push({ id: -l.id - 1, tipo: "gasto", categoria: "Moto", valor: gastosL(l), data: l.data, descricao: "Gasolina e manutenção", pagamento: pagMoto(), mensal: false, origem: l.id });
+    }
+  }
+  return saida.sort((x, y) => x.data < y.data ? 1 : x.data > y.data ? -1 : (y.id - x.id));
+}
+
+// ===== Nuvem =====
+const ref = (...p) => doc(db, "usuarios", S.user.uid, ...p);
+async function salvarCfg(parcial) {
+  Object.assign(S.cfg, parcial);
+  await setDoc(doc(db, "usuarios", S.user.uid), { config: parcial }, { merge: true });
+}
+const salvarLanc = l => setDoc(ref("lancamentos", String(l.id)), l);
+const apagarLanc = id => deleteDoc(ref("lancamentos", String(id)));
+const salvarMov = m => { const { ocorr, origem, ...limpo } = m; return setDoc(ref("carteira", String(m.id)), limpo); };
+const apagarMov = id => deleteDoc(ref("carteira", String(id)));
+
+function ouvir(uid) {
+  desligar.forEach(f => f()); desligar = [];
+  let prontos = 0; const pronto = () => { if (++prontos >= 3) { S.carregado = true; } render(); };
+  desligar.push(onSnapshot(doc(db, "usuarios", uid), s => { S.cfg = (s.data() && s.data().config) || {}; pronto(); }, e => aviso("Erro na nuvem: " + e.code)));
+  desligar.push(onSnapshot(collection(db, "usuarios", uid, "lancamentos"), s => { S.lanc = s.docs.map(d => d.data()).filter(x => x && x.data); pronto(); }));
+  desligar.push(onSnapshot(collection(db, "usuarios", uid, "carteira"), s => { S.cart = s.docs.map(d => d.data()).filter(x => x && x.data); pronto(); }));
+}
+
+// ===== Telas =====
+function chips(lista, atual, acao) {
+  return `<div class="chips">${lista.map(([v, n, cor]) =>
+    `<button class="chip ${v === atual ? "on" : ""}" ${v === atual && cor ? `style="background:${cor};color:#fff"` : ""} onclick="R.${acao}('${v}')">${n}</button>`).join("")}</div>`;
+}
+const card = (r, v, cor) => `<div class="card"><small>${r}</small><b style="color:${cor || "var(--texto)"}">${v}</b></div>`;
+const menu = (t, s, acao) => `<button class="menu" onclick="${acao}"><span>${t}${s ? `<small>${s}</small>` : ""}</span><i>›</i></button>`;
+const olho = () => `<button class="olho" onclick="R.olho()" aria-label="Mostrar ou esconder valores">${S.oculto ? "◡" : "◉"}</button>`;
+
+function telaEntrar() {
+  return `<div class="entrar"><img src="icon-512.png" alt=""><h1 style="margin:18px 0 6px">Radar R$/km</h1>
+  <p style="max-width:320px">Entre com a mesma conta Google do app no Android. Seus lançamentos e a Carteira aparecem aqui.</p>
+  <button class="btn" style="background:#fff;color:var(--vermelho);max-width:320px" onclick="R.entrar()">Entrar com Google</button></div>`;
+}
+
+function telaInicio() {
+  const nome = S.cfg.nome || (S.user.email || "").split("@")[0] || "Entregador";
+  const [sI, sF] = semana(), [mI, mF] = mes(0);
+  const sem = S.lanc.filter(l => l.data >= sI && l.data <= sF);
+  const mv = movsNoPeriodo(mI, mF);
+  const entrou = mv.filter(m => m.tipo === "receita").reduce((a, m) => a + m.valor, 0);
+  const saiu = mv.filter(m => m.tipo !== "receita").reduce((a, m) => a + m.valor, 0);
+  const cartao = mv.filter(m => m.tipo !== "receita" && m.pagamento === "Cartão").reduce((a, m) => a + m.valor, 0);
+  const lucroHoje = S.lanc.filter(l => l.data === hoje()).reduce((a, l) => a + lucro(l), 0);
+  return `<div class="topo">
+    <div class="ola" onclick="R.nome()"><div class="avatar">${esc(nome.charAt(0).toUpperCase())}</div>
+    <div><div style="font-size:16px">Olá,  ✎</div><div style="font-size:26px;font-weight:700">${esc(nome)}</div></div></div>
+    <div class="pilula"><div class="bola" style="background:var(--vermelho)">R$</div><div><div style="font-size:12px;color:var(--cinza)">Lucro iFood hoje</div><div style="font-size:24px;font-weight:700">${reaisO(lucroHoje)}</div></div></div>
+  </div><div class="folha">
+    <div class="faixa" style="background:var(--campo);color:var(--cinza);font-weight:400;font-size:13px">No iPhone o pop-up sobre o iFood e o contador de km não funcionam. Use o app Android pra isso.</div>
+    <h2>Resumo</h2><p class="sub">Como estão a semana e o mês</p>
+    <div class="cards">${card("Lucro iFood na semana", reaisO(sem.reduce((a, l) => a + lucro(l), 0)), "var(--verde)")}${card("Km na semana", dec(sem.reduce((a, l) => a + (l.km || 0), 0), 1))}</div>
+    <div class="cards">${card("Sobrou no mês", reaisO(entrou - saiu), entrou - saiu >= 0 ? "var(--verde)" : "var(--vermelho)")}${card("No cartão no mês", reaisO(cartao))}</div>
+    ${menu("Ver Financeiro do iFood", "Lucro, km e lançamentos", "R.aba('financeiro')")}
+    ${menu("Ver Carteira", "Tudo o que entra e sai", "R.aba('carteira')")}
+  </div>`;
+}
+
+function listaLanc(itens) {
+  if (!itens.length) return `<p class="sub" style="margin-top:12px">Nenhum lançamento nesse período.</p>`;
+  let html = "", ant = "";
+  [...itens].sort((a, b) => a.data < b.data ? 1 : a.data > b.data ? -1 : b.id - a.id).slice(0, 200).forEach(l => {
+    if (l.data !== ant) { ant = l.data; html += `<div class="dia">${nomeDoDia(l.data)}</div>`; }
+    const lu = lucro(l), pos = lu >= 0;
+    const partes = [];
+    if (l.ganho > 0) partes.push("ganho " + reais(l.ganho));
+    if (l.km > 0) partes.push(dec(l.km, 1) + " km");
+    if (l.gasolina > 0) partes.push("gasolina " + reais(l.gasolina));
+    if (l.manutencao > 0) partes.push("manut. " + reais(l.manutencao));
+    html += `<div class="linha" onclick="R.editarLanc(${l.id})"><div class="bola" style="background:${pos ? "var(--verde)" : "var(--vermelho)"}">${pos ? "+" : "−"}</div>
+      <div class="meio"><div class="t">${esc(l.obs || "Dia de entregas")}</div><div class="s">${partes.join(" · ")}</div></div>
+      <b style="color:${pos ? "var(--texto)" : "var(--vermelho)"}">${reaisO(lu)}</b></div>`;
+  });
+  return html;
+}
+
+function resumoPeriodo(itens) {
+  if (!itens.length) return "";
+  const g = itens.reduce((a, l) => a + (l.ganho || 0), 0), ga = itens.reduce((a, l) => a + gastosL(l), 0);
+  const km = itens.reduce((a, l) => a + (l.km || 0), 0), lu = g - ga, dias = new Set(itens.map(l => l.data)).size;
+  return `<div class="rot" style="font-size:15px;margin-top:20px">Lucro</div><div class="grande" style="font-size:32px;color:${lu >= 0 ? "var(--verde)" : "var(--vermelho)"}">${reaisO(lu)}</div>
+  <div class="cards">${card("Ganhos", reaisO(g))}${card("Gastos", reaisO(ga))}</div>
+  <div class="cards">${card("Km rodados", km > 0 ? dec(km, 1) : "—")}${card("Lucro por km", km > 0 ? reais(lu / km) : "—")}</div>
+  <p class="sub" style="margin-top:12px">${dias} dia(s)${dias > 1 ? " · média de lucro " + reais(lu / dias) + " por dia" : ""}</p>`;
+}
+
+function telaFinanceiro() {
+  const [sI, sF] = semana();
+  const sem = S.lanc.filter(l => l.data >= sI && l.data <= sF);
+  const luS = sem.reduce((a, l) => a + lucro(l), 0), meta = cfgN("metaSemanal");
+  const fimD = deIso(sF), iniD = deIso(sI);
+  const rotSem = `${pad(iniD.getDate())} - ${pad(fimD.getDate())} ${fimD.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}`;
+  let per = "";
+  if (S.fPer === "dia") per = `<input type="date" value="${S.fDia}" onchange="R.fData('fDia',this.value)" style="margin-top:12px">`;
+  if (S.fPer === "pers") per = `<div class="dupla" style="margin-top:12px"><input type="date" value="${S.fIni}" onchange="R.fData('fIni',this.value)"><input type="date" value="${S.fFim}" onchange="R.fData('fFim',this.value)"></div>`;
+  const [mI, mF] = mes(0), [pI, pF] = mes(-1);
+  const itens = {
+    dia: S.lanc.filter(l => l.data === S.fDia), semana: sem,
+    mes: S.lanc.filter(l => l.data >= mI && l.data <= mF), mespas: S.lanc.filter(l => l.data >= pI && l.data <= pF),
+    tudo: S.lanc, pers: S.lanc.filter(l => S.fIni && S.fFim && l.data >= S.fIni && l.data <= S.fFim)
+  }[S.fPer] || [];
+  const pct = meta > 0 ? Math.max(0, Math.min(1, luS / meta)) * 100 : 0;
+  return `<div class="branca"><div class="titulo"><h1>Financeiro</h1>${olho()}</div>
+    <p style="font-size:18px;margin:24px 0 0">Lucro da semana  •  ${rotSem}</p>
+    <div class="grande" style="color:${luS >= 0 ? "var(--texto)" : "var(--vermelho)"}">${reaisO(luS)}</div>
+    ${meta > 0 ? `<div class="trilho" style="margin-top:16px"><div style="width:${pct}%;background:var(--verde)"></div></div>` : ""}
+    <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:15px">
+      <span style="color:${meta > 0 && luS >= meta ? "var(--verde)" : "var(--cinza)"}">${meta <= 0 ? "Defina uma meta de lucro pra semana" : luS >= meta ? "Atingiu sua meta de " + reais(meta) + "!" : "Faltam " + reais(meta - luS) + " pra meta de " + reais(meta)}</span>
+      <button class="link" onclick="R.meta()">${meta > 0 ? "Editar meta" : "Definir meta"}</button></div>
+    <hr><p style="font-size:22px;margin:20px 0 12px">Extrato</p>
+    ${chips([["dia", "Dia"], ["semana", "Semana"], ["mes", "Mês"], ["mespas", "Mês passado"], ["tudo", "Tudo"], ["pers", "Personalizado"]], S.fPer, "fPer")}
+    ${per}${resumoPeriodo(itens)}
+    <h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${listaLanc(itens)}</div>`;
+}
+
+function telaRegistrar() {
+  const ed = S.ed;
+  const v = (x) => x > 0 ? reais(x) : "";
+  return `<div class="topo"><h1>${ed ? "Editar lançamento" : "Registrar"}</h1><p>${ed ? "Mude o que precisar e salve" : "Ganhos e gastos do dia no iFood"}</p></div>
+  <div class="folha">
+    <label class="rot">Data</label><input type="date" id="rData" value="${ed ? ed.data : hoje()}">
+    <label class="rot">Quanto ganhou</label><input id="rGanho" inputmode="numeric" placeholder="R$ 0,00" value="${ed ? v(ed.ganho) : ""}" oninput="R.mask(this)">
+    <label class="rot">Km rodados</label><input id="rKm" inputmode="decimal" placeholder="0" value="${ed && ed.km > 0 ? dec(ed.km, 1) : ""}">
+    <label class="rot">Gasolina abastecida</label><input id="rGas" inputmode="numeric" placeholder="R$ 0,00" value="${ed ? v(ed.gasolina) : ""}" oninput="R.mask(this)">
+    <label class="rot">Manutenção — se teve gasto</label><input id="rMan" inputmode="numeric" placeholder="R$ 0,00" value="${ed ? v(ed.manutencao) : ""}" oninput="R.mask(this)">
+    <label class="rot">Observação (opcional)</label><input id="rObs" value="${ed ? esc(ed.obs) : ""}">
+    <button class="btn" onclick="R.salvarLanc()">${ed ? "Salvar alterações" : "Salvar lançamento"}</button>
+    ${ed ? `<button class="btn sec" onclick="R.cancelarLanc()">Cancelar</button><button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarLanc()">Apagar lançamento</button>` : `<p class="sub" style="margin-top:12px">Pode lançar mais de uma vez no mesmo dia. Seus lançamentos ficam no Financeiro.</p>`}
+  </div>`;
+}
+
+function telaCarteira() {
+  let ini, fim, linhaPer = "";
+  if (S.cPer === "semana") { [ini, fim] = semana(); linhaPer = `<p style="margin:12px 0 0">Esta semana</p>`; }
+  else if (S.cPer === "dia") { ini = fim = S.cDia; linhaPer = `<input type="date" value="${S.cDia}" onchange="R.fData('cDia',this.value)" style="margin-top:12px">`; }
+  else if (S.cPer === "pers") { ini = S.cIni; fim = S.cFim; linhaPer = `<div class="dupla" style="margin-top:12px"><input type="date" value="${S.cIni}" onchange="R.fData('cIni',this.value)"><input type="date" value="${S.cFim}" onchange="R.fData('cFim',this.value)"></div>`; }
+  else { [ini, fim] = mes(S.cMes); linhaPer = `<div style="display:flex;align-items:center;margin-top:12px"><button class="link" style="font-size:28px;padding:0 10px" onclick="R.cMes(-1)">‹</button><div style="flex:1;text-align:center;font-size:17px">${nomeMes(S.cMes)}</div><button class="link" style="font-size:28px;padding:0 10px" onclick="R.cMes(1)">›</button></div>`; }
+  const mv = ini && fim ? movsNoPeriodo(ini, fim) : [];
+  const soma = t => mv.filter(m => m.tipo === t).reduce((a, m) => a + m.valor, 0);
+  const entrou = soma("receita"), saiu = soma("gasto"), inv = soma("investimento"), sobrou = entrou - saiu - inv;
+  const cartao = mv.filter(m => m.tipo !== "receita" && m.pagamento === "Cartão").reduce((a, m) => a + m.valor, 0);
+  let comp = "";
+  if (S.cPer === "mes") {
+    const [aI, aF] = mes(S.cMes - 1);
+    const antes = movsNoPeriodo(aI, aF).filter(m => m.tipo === "gasto").reduce((a, m) => a + m.valor, 0);
+    if (antes > 0 && saiu > 0) {
+      const dif = (saiu - antes) / antes * 100, nome = nomeMes(S.cMes - 1).split(" de")[0].toLowerCase();
+      comp = `<p style="color:${dif <= 0 ? "var(--verde)" : "var(--vermelho)"};margin:12px 0 0">Você gastou ${dec(Math.abs(dif), 0)}% ${dif <= 0 ? "menos" : "mais"} que em ${nome}</p>`;
+    }
+  }
+  const porCat = {}; mv.filter(m => m.tipo === "gasto").forEach(m => porCat[m.categoria] = (porCat[m.categoria] || 0) + m.valor);
+  const cats = Object.entries(porCat).sort((a, b) => b[1] - a[1]);
+  const maior = cats.length ? cats[0][1] : 0;
+  let barras = "";
+  if (cats.length) {
+    barras = `<h2>Pra onde foi o dinheiro</h2><p class="sub">Gastos por categoria</p>` + cats.map(([c, v]) =>
+      `<div style="display:flex;justify-content:space-between;margin:12px 0 4px"><span>${esc(c)}</span><span style="color:var(--cinza);font-size:14px">${reaisO(v)}  ·  ${dec(v / saiu * 100, 0)}%</span></div>
+       <div class="trilho"><div style="width:${maior > 0 ? v / maior * 100 : 0}%;background:var(--vermelho)"></div></div>`).join("");
+  }
+  let lista = "", ant = "";
+  if (!mv.length) lista = `<p class="sub" style="margin-top:12px">Nada nesse período. Toque em Novo lançamento.</p>`;
+  mv.slice(0, 300).forEach(m => {
+    if (m.data !== ant) { ant = m.data; lista += `<div class="dia">${nomeDoDia(m.data)}</div>`; }
+    const partes = [m.categoria]; if (m.pagamento) partes.push(m.pagamento); if (m.mensal) partes.push("todo mês"); if (m.origem) partes.push("do Registrar");
+    lista += `<div class="linha" onclick="R.abrirMov(${m.id},'${m.data}')"><div class="bola" style="background:${COR[m.tipo]}">${m.tipo === "receita" ? "+" : m.tipo === "investimento" ? "↗" : "−"}</div>
+      <div class="meio"><div class="t">${esc(m.descricao || m.categoria)}</div><div class="s">${esc(partes.join(" · "))}</div></div>
+      <b style="color:${m.tipo === "receita" ? "var(--verde)" : "var(--texto)"}">${m.tipo === "receita" ? "+ " : "− "}${reaisO(m.valor)}</b></div>`;
+  });
+  return `<div class="branca"><div class="titulo"><h1>Carteira</h1>${olho()}</div>
+    <div style="margin-top:16px">${chips([["mes", "Mês"], ["semana", "Semana"], ["dia", "Dia"], ["pers", "Personalizado"]], S.cPer, "cPer")}</div>${linhaPer}
+    <div class="rot" style="font-size:15px;margin-top:20px">Sobrou</div><div class="grande" style="color:${sobrou >= 0 ? "var(--verde)" : "var(--vermelho)"}">${reaisO(sobrou)}</div>
+    <div class="cards">${card("Entrou", reaisO(entrou), "var(--verde)")}${card("Saiu", reaisO(saiu), "var(--vermelho)")}</div>
+    <div class="cards">${card("Investiu", reaisO(inv), "var(--azul)")}${card("No cartão", reaisO(cartao))}</div>
+    ${comp}<button class="btn" onclick="R.novoMov()">Novo lançamento</button>
+    ${barras}<h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${lista}</div>`;
+}
+
+function telaMov() {
+  const ed = S.edMov, tipo = S.novoTipo;
+  const cats = CAT[tipo];
+  if (!S.movCat || !cats.includes(S.movCat)) S.movCat = cats[0];
+  if (!S.movPag) S.movPag = "Cartão";
+  const tipos = [["receita", "Receita", "var(--verde)"], ["gasto", "Gasto", "var(--vermelho)"], ["investimento", "Investimento", "var(--azul)"]];
+  return `<div class="topo"><h1>${ed ? "Editar lançamento" : "Novo lançamento"}</h1><p>Receita, gasto ou investimento</p></div>
+  <div class="folha">
+    <label class="rot">Tipo</label>${chips(tipos, tipo, "movTipo")}
+    <label class="rot">Categoria</label>${chips(cats.map(c => [c, c, COR[tipo]]), S.movCat, "movCat")}
+    <label class="rot">Valor</label><input id="mValor" inputmode="numeric" placeholder="R$ 0,00" value="${S.movValor || ""}" oninput="R.mask(this);R.guardar()">
+    <label class="rot">Data</label><input type="date" id="mData" value="${S.movData || hoje()}" onchange="R.guardar()">
+    <label class="rot">Descrição (opcional)</label><input id="mDesc" value="${esc(S.movDesc || "")}" oninput="R.guardar()">
+    ${tipo !== "receita" ? `<label class="rot">Forma de pagamento</label>${chips(PAGS.map(p => [p, p]), S.movPag, "movPag")}` : ""}
+    <label class="switch">Repetir todo mês (salário, aluguel, contas fixas…)<input type="checkbox" id="mRep" ${S.movRep ? "checked" : ""} onchange="R.guardar()"></label>
+    <button class="btn" onclick="R.salvarMov()">${ed ? "Salvar alterações" : "Salvar lançamento"}</button>
+    <button class="btn sec" onclick="R.aba('carteira')">Cancelar</button>
+    ${ed && ed.mensal ? `<button class="btn sec" onclick="R.pararMov()">Parar de repetir a partir de ${telaData(S.movOcorr || ed.data).slice(3)}</button><button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarMov()">Apagar de todos os meses</button><p class="sub" style="margin-top:10px">Mudar um lançamento que repete muda todos os meses dele.</p>` : ""}
+    ${ed && !ed.mensal ? `<button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarMov()">Apagar lançamento</button>` : ""}
+  </div>`;
+}
+
+function telaAjustes() {
+  const v = x => x > 0 ? reais(x) : "";
+  const modelo = S.cfg.modelo || "";
+  return `<div class="topo"><h1>Ajustes</h1><p onclick="R.nome()" style="cursor:pointer">Toque pra mudar seu nome: ${esc(S.cfg.nome || (S.user.email || "").split("@")[0])}  ✎</p></div>
+  <div class="folha">
+    <h2>Conta</h2><p class="sub">${esc(S.user.email || "")}</p>
+    <p style="color:var(--verde);font-weight:700;margin:4px 0 0">✓ Sincronizando com a nuvem</p>
+    ${menu("Sair da conta", "Os dados continuam na nuvem", "R.sair()")}
+    <h2>Custos da moto</h2><p class="sub">Pra calcular o lucro por km</p>
+    <label class="rot">Modelo da moto</label><select id="aModelo" onchange="R.modelo(this.value)"><option value="">Escolher modelo…</option>${MOTOS.map((m, i) => `<option value="${i}" ${modelo === m[0] ? "selected" : ""}>${m[0]}</option>`).join("")}</select>
+    <label class="rot">Preço do litro da gasolina</label><input id="aPreco" inputmode="numeric" value="${v(cfgN("precoGasolina"))}" oninput="R.mask(this)" placeholder="R$ 0,00">
+    <label class="rot">Quantos km a moto faz com 1 litro</label><input id="aKml" inputmode="decimal" value="${cfgN("kmPorLitro") > 0 ? dec(cfgN("kmPorLitro"), 0) : ""}" placeholder="0">
+    <label class="rot">Reserva de manutenção por km — ex.: R$ 0,10</label><input id="aMan" inputmode="numeric" value="${v(cfgN("manutPorKm"))}" oninput="R.mask(this)" placeholder="R$ 0,00">
+    <p style="font-weight:700;margin:12px 0 0">${custoKm() > 0 ? "Custo estimado: " + reais(custoKm()) + " por km rodado" : "Custo ainda não configurado"}</p>
+    <button class="btn" onclick="R.salvarCustos()">Salvar custos</button>
+    <h2>Carteira</h2><p class="sub">Como o iFood entra na Carteira</p>
+    ${chips([["sim", "Entra sozinho"], ["nao", "Não entra"]], ifoodNaCarteira() ? "sim" : "nao", "ifood")}
+    <p class="sub" style="margin-top:8px">Não lance a fatura do cartão como gasto: ela é o pagamento do que já foi lançado.</p>
+    <label class="rot">Gastos da moto são pagos com</label>${chips(PAGS.map(p => [p, p]), pagMoto(), "pagMoto")}
+    <h2>Aparência</h2>${chips([["0", "Igual ao celular"], ["1", "Claro"], ["2", "Escuro"]], String(S.tema), "tema")}
+    <h2>No iPhone</h2><p class="sub">Pra virar um ícone: no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
+  </div>`;
+}
+
+function barra() {
+  const b = (aba, ico, nome) => `<button class="${S.aba === aba || (aba === "carteira" && S.aba === "mov") ? "on" : ""}" onclick="R.aba('${aba}')">${ico}<span>${nome}</span></button>`;
+  return `<nav class="barra">${b("inicio", ICO.inicio, "Início")}${b("financeiro", ICO.fin, "Financeiro")}<span style="width:80px"></span>${b("carteira", ICO.cart, "Carteira")}${b("ajustes", ICO.ajus, "Ajustes")}</nav>
+  <button class="mais" aria-label="Registrar" onclick="R.registrar()">${ICO.mais}</button>`;
+}
+
+function render() {
+  aplicarTema();
+  const el = document.getElementById("app");
+  if (!S.user) { el.innerHTML = telaEntrar(); return; }
+  if (!S.carregado) { el.innerHTML = `<div class="entrar"><p>Carregando seus dados…</p></div>`; return; }
+  const telas = { inicio: telaInicio, financeiro: telaFinanceiro, registrar: telaRegistrar, carteira: telaCarteira, mov: telaMov, ajustes: telaAjustes };
+  el.innerHTML = (telas[S.aba] || telaInicio)() + barra();
+  document.querySelector('meta[name="theme-color"]').setAttribute("content", (S.aba === "financeiro" || S.aba === "carteira") ? getComputedStyle(document.body).getPropertyValue("--fundo").trim() : "#EB0033");
+}
+
+// ===== Ações =====
+window.R = {
+  aba(a) { S.aba = a; if (a !== "registrar") S.ed = null; render(); scrollTo(0, 0); },
+  registrar() { S.ed = null; S.aba = "registrar"; render(); scrollTo(0, 0); },
+  olho() { S.oculto = !S.oculto; localStorage.setItem("oculto", S.oculto ? "1" : "0"); render(); },
+  mask(el) { const d = el.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 11); el.value = d ? reais(parseInt(d, 10) / 100) : ""; },
+  async entrar() {
+    const p = new GoogleAuthProvider();
+    try { await signInWithPopup(auth, p); }
+    catch (e) {
+      if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment", "auth/cancelled-popup-request"].includes(e.code)) await signInWithRedirect(auth, p);
+      else if (e.code !== "auth/popup-closed-by-user") aviso("Não deu pra entrar: " + (e.code || e.message));
+    }
+  },
+  async sair() { if (confirm("Sair da conta? Os dados continuam na nuvem.")) { desligar.forEach(f => f()); desligar = []; await signOut(auth); } },
+  async nome() {
+    const n = prompt("Como quer ser chamado?", S.cfg.nome || "");
+    if (n !== null) { await salvarCfg({ nome: n.trim() }); render(); }
+  },
+  async meta() {
+    const atual = cfgN("metaSemanal");
+    const n = prompt("Meta de lucro da semana (R$)", atual > 0 ? dec(atual) : "");
+    if (n === null) return;
+    const v = parseFloat(n.replace(/[^\d,.]/g, "").replace(/\./g, "").replace(",", "."));
+    if (isNaN(v)) { aviso("Valor inválido"); return; }
+    await salvarCfg({ metaSemanal: v }); render();
+  },
+  fPer(p) { S.fPer = p; if (p === "dia" && !S.fDia) S.fDia = hoje(); if (p === "pers" && !S.fIni) { const [a, b] = semana(); S.fIni = a; S.fFim = b; } render(); },
+  cPer(p) { S.cPer = p; if (p === "dia" && !S.cDia) S.cDia = hoje(); if (p === "pers" && !S.cIni) { const [a, b] = mes(0); S.cIni = a; S.cFim = b; } render(); },
+  fData(campo, v) { S[campo] = v; if (S.fIni > S.fFim && S.fFim) [S.fIni, S.fFim] = [S.fFim, S.fIni]; if (S.cIni > S.cFim && S.cFim) [S.cIni, S.cFim] = [S.cFim, S.cIni]; render(); },
+  cMes(d) { S.cMes += d; render(); },
+
+  // Registrar (iFood)
+  editarLanc(id) { S.ed = S.lanc.find(l => l.id === id) || null; S.aba = "registrar"; render(); scrollTo(0, 0); },
+  cancelarLanc() { S.ed = null; S.aba = "financeiro"; render(); },
+  async salvarLanc() {
+    const data = document.getElementById("rData").value;
+    const g = lerReais("rGanho"), k = lerNum("rKm"), ga = lerReais("rGas"), m = lerReais("rMan");
+    if (!data) { aviso("Escolha a data"); return; }
+    if (!g && !k && !ga && !m) { aviso("Preencha pelo menos um valor"); return; }
+    const ed = S.ed;
+    const l = { id: ed ? ed.id : Date.now(), data, ganho: g, km: k, gasolina: ga, manutencao: m, obs: document.getElementById("rObs").value.trim() };
+    salvarLanc(l); aviso(ed ? "Alterações salvas!" : "Lançamento salvo!");
+    S.ed = null; S.aba = ed ? "financeiro" : "registrar"; render(); scrollTo(0, 0);
+  },
+  apagarLanc() {
+    if (!S.ed || !confirm("Apagar este lançamento?")) return;
+    apagarLanc(S.ed.id); S.ed = null; S.aba = "financeiro"; render();
+  },
+
+  // Carteira
+  novoMov() { S.edMov = null; S.novoTipo = "gasto"; S.movCat = ""; S.movPag = "Cartão"; S.movValor = ""; S.movData = hoje(); S.movDesc = ""; S.movRep = false; S.movOcorr = ""; S.aba = "mov"; render(); scrollTo(0, 0); },
+  abrirMov(id, data) {
+    if (id < 0) {   // linha automática do iFood: abre o Registrar
+      const lanc = S.lanc.find(l => l.id === -id || l.id === -id - 1);
+      if (lanc) R.editarLanc(lanc.id); return;
+    }
+    const m = S.cart.find(x => x.id === id); if (!m) return;
+    S.edMov = m; S.novoTipo = m.tipo; S.movCat = m.categoria; S.movPag = m.pagamento || "Cartão";
+    S.movValor = reais(m.valor); S.movData = m.data; S.movDesc = m.descricao || ""; S.movRep = !!m.mensal; S.movOcorr = data;
+    S.aba = "mov"; render(); scrollTo(0, 0);
+  },
+  guardar() {
+    S.movValor = document.getElementById("mValor").value; S.movData = document.getElementById("mData").value;
+    S.movDesc = document.getElementById("mDesc").value; S.movRep = document.getElementById("mRep").checked;
+  },
+  movTipo(t) { R.guardar(); if (S.novoTipo !== t) { S.novoTipo = t; S.movCat = ""; } render(); },
+  movCat(c) { R.guardar(); S.movCat = c; render(); },
+  movPag(p) { R.guardar(); S.movPag = p; render(); },
+  salvarMov() {
+    R.guardar();
+    const valor = lerReais("mValor"), data = S.movData;
+    if (!valor) { aviso("Coloque o valor"); return; }
+    if (!data) { aviso("Escolha a data"); return; }
+    const ed = S.edMov;
+    const m = { id: ed ? ed.id : Date.now(), tipo: S.novoTipo, categoria: S.movCat, valor, data, descricao: (S.movDesc || "").trim(),
+      pagamento: S.novoTipo === "receita" ? "" : S.movPag, mensal: !!S.movRep, fimMes: S.movRep ? (ed && ed.fimMes) || "" : "" };
+    salvarMov(m); aviso(ed ? "Alterações salvas!" : "Lançamento salvo!");
+    S.edMov = null; S.aba = "carteira"; render(); scrollTo(0, 0);
+  },
+  pararMov() {
+    const m = S.edMov; if (!m) return;
+    const d = deIso(S.movOcorr || m.data); const ant = new Date(d.getFullYear(), d.getMonth() - 1, 1, 12);
+    const fimMes = `${ant.getFullYear()}-${pad(ant.getMonth() + 1)}`;
+    if (fimMes < m.data.slice(0, 7)) apagarMov(m.id); else salvarMov({ ...m, fimMes });
+    aviso("Não repete mais a partir deste mês"); S.edMov = null; S.aba = "carteira"; render();
+  },
+  apagarMov() {
+    const m = S.edMov; if (!m || !confirm(m.mensal ? "Apagar de todos os meses?" : "Apagar este lançamento?")) return;
+    apagarMov(m.id); S.edMov = null; S.aba = "carteira"; render();
+  },
+
+  // Ajustes
+  modelo(i) {
+    if (i === "") return; const m = MOTOS[parseInt(i, 10)];
+    document.getElementById("aKml").value = dec(m[1], 0);
+    document.getElementById("aMan").value = reais(m[2]);
+    S.cfg.modelo = m[0]; aviso("Médias da " + m[0] + " preenchidas. Confira e salve.");
+  },
+  async salvarCustos() {
+    const p = lerReais("aPreco"), k = lerNum("aKml"), mt = lerReais("aMan");
+    if (mt > 1 && !confirm("Manutenção de " + reais(mt) + " POR KM parece alto (o normal é R$ 0,05 a R$ 0,20). Salvar assim?")) return;
+    await salvarCfg({ precoGasolina: p, kmPorLitro: k, manutPorKm: mt }); aviso("Salvo!"); render();
+  },
+  async ifood(v) { await salvarCfg({ ifoodNaCarteira: v === "sim" }); render(); },
+  async pagMoto(p) { await salvarCfg({ pagamentoMoto: p }); render(); },
+  tema(t) { S.tema = parseInt(t, 10); localStorage.setItem("tema", t); render(); }
+};
+
+// ===== Início =====
+getRedirectResult(auth).catch(e => aviso("Não deu pra entrar: " + (e.code || e.message)));
+onAuthStateChanged(auth, u => {
+  S.user = u; S.carregado = false;
+  if (u) ouvir(u.uid); else { desligar.forEach(f => f()); desligar = []; }
+  render();
+});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>
