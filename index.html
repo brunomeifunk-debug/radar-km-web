@@ -61,6 +61,30 @@ hr{border:0;height:1px;background:var(--linha);margin:24px 0 0}
 .switch input{width:auto;transform:scale(1.4)}
 .dupla{display:flex;gap:12px}.dupla>*{flex:1}
 .link{color:var(--vermelho);background:none;border:0;font-size:15px;cursor:pointer;padding:0}
+.logo,.maisTxt{display:none}
+.duas>div{min-width:0}
+/* ===== Computador (tela larga): menu lateral e duas colunas ===== */
+@media (min-width:900px){
+  body{background:var(--campo)}
+  #app{max-width:none;margin:0 0 0 240px;padding:24px 40px 60px}
+  .topo{border-radius:24px;padding:28px 32px 52px}
+  .folha{border-radius:24px;margin-top:-28px;padding:16px 32px 40px;min-height:0}
+  .branca{background:var(--fundo);border-radius:24px;padding:28px 32px 40px}
+  .form{max-width:620px}
+  .duas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .barra{top:0;bottom:0;right:auto;width:240px;height:auto;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:24px 16px;box-shadow:2px 0 12px rgba(0,0,0,.06)}
+  .barra button{flex:0 0 auto;flex-direction:row;gap:14px;font-size:16px;padding:14px 16px;border-radius:14px;justify-content:flex-start}
+  .barra button.on{background:var(--campo)}
+  .barra .espaco{display:none}
+  .logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--texto);padding:0 8px 18px}
+  .logo img{width:40px;height:40px;border-radius:10px}
+  .mais{top:88px;bottom:auto;left:24px;transform:none;width:208px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-size:16px;font-weight:700}
+  .mais svg{width:24px;height:24px}
+  .maisTxt{display:inline}
+  .barra .logo + button{margin-top:72px}
+  .aviso{bottom:40px;left:calc(50% + 120px)}
+}
 </style>
 </head>
 <body>
@@ -74,7 +98,8 @@ import { initializeFirestore, getFirestore, persistentLocalCache, persistentMult
 // ===== Configuração do Firebase (bloco "firebaseConfig" do app Web no console) =====
 const firebaseConfig = {
   apiKey: "AIzaSyCk35wyRGl6hPBb_bDvCTzl_6jx2IYbnC8",
-  authDomain: "radar-km.firebaseapp.com",
+  // Login no MESMO endereço do site (evita o bloqueio do Safari no iPhone)
+  authDomain: ["radar-km.web.app", "radar-km.firebaseapp.com"].includes(location.hostname) ? location.hostname : "radar-km.firebaseapp.com",
   projectId: "radar-km",
   storageBucket: "radar-km.firebasestorage.app",
   messagingSenderId: "912767427124",
@@ -257,12 +282,14 @@ function telaInicio() {
     <div><div style="font-size:16px">Olá,  ✎</div><div style="font-size:26px;font-weight:700">${esc(nome)}</div></div></div>
     <div class="pilula"><div class="bola" style="background:var(--vermelho)">R$</div><div><div style="font-size:12px;color:var(--cinza)">Lucro iFood hoje</div><div style="font-size:24px;font-weight:700">${reaisO(lucroHoje)}</div></div></div>
   </div><div class="folha">
-    <div class="faixa" style="background:var(--campo);color:var(--cinza);font-weight:400;font-size:13px">No iPhone o pop-up sobre o iFood e o contador de km não funcionam. Use o app Android pra isso.</div>
-    <h2>Resumo</h2><p class="sub">Como estão a semana e o mês</p>
+    <div class="duas"><div><h2>Resumo</h2><p class="sub">Como estão a semana e o mês</p>
     <div class="cards">${card("Lucro iFood na semana", reaisO(sem.reduce((a, l) => a + lucro(l), 0)), "var(--verde)")}${card("Km na semana", dec(sem.reduce((a, l) => a + (l.km || 0), 0), 1))}</div>
     <div class="cards">${card("Sobrou no mês", reaisO(entrou - saiu), entrou - saiu >= 0 ? "var(--verde)" : "var(--vermelho)")}${card("No cartão no mês", reaisO(cartao))}</div>
+    </div><div><h2>Atalhos</h2><p class="sub">Vá direto pro que precisa</p>
+    ${menu("Registrar o dia do iFood", "Ganhos, km e gastos", "R.registrar()")}
     ${menu("Ver Financeiro do iFood", "Lucro, km e lançamentos", "R.aba('financeiro')")}
     ${menu("Ver Carteira", "Tudo o que entra e sai", "R.aba('carteira')")}
+    ${menu("Novo lançamento na Carteira", "Receita, gasto ou investimento", "R.novoMov()")}</div></div>
   </div>`;
 }
 
@@ -317,17 +344,17 @@ function telaFinanceiro() {
     <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:15px">
       <span style="color:${meta > 0 && luS >= meta ? "var(--verde)" : "var(--cinza)"}">${meta <= 0 ? "Defina uma meta de lucro pra semana" : luS >= meta ? "Atingiu sua meta de " + reais(meta) + "!" : "Faltam " + reais(meta - luS) + " pra meta de " + reais(meta)}</span>
       <button class="link" onclick="R.meta()">${meta > 0 ? "Editar meta" : "Definir meta"}</button></div>
-    <hr><p style="font-size:22px;margin:20px 0 12px">Extrato</p>
+    <hr><div class="duas"><div><p style="font-size:22px;margin:20px 0 12px">Extrato</p>
     ${chips([["dia", "Dia"], ["semana", "Semana"], ["mes", "Mês"], ["mespas", "Mês passado"], ["tudo", "Tudo"], ["pers", "Personalizado"]], S.fPer, "fPer")}
-    ${per}${resumoPeriodo(itens)}
-    <h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${listaLanc(itens)}</div>`;
+    ${per}${resumoPeriodo(itens)}</div>
+    <div><h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${listaLanc(itens)}</div></div></div>`;
 }
 
 function telaRegistrar() {
   const ed = S.ed;
   const v = (x) => x > 0 ? reais(x) : "";
   return `<div class="topo"><h1>${ed ? "Editar lançamento" : "Registrar"}</h1><p>${ed ? "Mude o que precisar e salve" : "Ganhos e gastos do dia no iFood"}</p></div>
-  <div class="folha">
+  <div class="folha"><div class="form">
     <label class="rot">Data</label><input type="date" id="rData" value="${ed ? ed.data : hoje()}">
     <label class="rot">Quanto ganhou</label><input id="rGanho" inputmode="numeric" placeholder="R$ 0,00" value="${ed ? v(ed.ganho) : ""}" oninput="R.mask(this)">
     <label class="rot">Km rodados</label><input id="rKm" inputmode="decimal" placeholder="0" value="${ed && ed.km > 0 ? dec(ed.km, 1) : ""}">
@@ -336,7 +363,7 @@ function telaRegistrar() {
     <label class="rot">Observação (opcional)</label><input id="rObs" value="${ed ? esc(ed.obs) : ""}">
     <button class="btn" onclick="R.salvarLanc()">${ed ? "Salvar alterações" : "Salvar lançamento"}</button>
     ${ed ? `<button class="btn sec" onclick="R.cancelarLanc()">Cancelar</button><button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarLanc()">Apagar lançamento</button>` : `<p class="sub" style="margin-top:12px">Pode lançar mais de uma vez no mesmo dia. Seus lançamentos ficam no Financeiro.</p>`}
-  </div>`;
+  </div></div>`;
 }
 
 function telaCarteira() {
@@ -377,12 +404,12 @@ function telaCarteira() {
       <b style="color:${m.tipo === "receita" ? "var(--verde)" : "var(--texto)"}">${m.tipo === "receita" ? "+ " : "− "}${reaisO(m.valor)}</b></div>`;
   });
   return `<div class="branca"><div class="titulo"><h1>Carteira</h1>${olho()}</div>
-    <div style="margin-top:16px">${chips([["mes", "Mês"], ["semana", "Semana"], ["dia", "Dia"], ["pers", "Personalizado"]], S.cPer, "cPer")}</div>${linhaPer}
+    <div class="duas"><div><div style="margin-top:16px">${chips([["mes", "Mês"], ["semana", "Semana"], ["dia", "Dia"], ["pers", "Personalizado"]], S.cPer, "cPer")}</div>${linhaPer}
     <div class="rot" style="font-size:15px;margin-top:20px">Sobrou</div><div class="grande" style="color:${sobrou >= 0 ? "var(--verde)" : "var(--vermelho)"}">${reaisO(sobrou)}</div>
     <div class="cards">${card("Entrou", reaisO(entrou), "var(--verde)")}${card("Saiu", reaisO(saiu), "var(--vermelho)")}</div>
     <div class="cards">${card("Investiu", reaisO(inv), "var(--azul)")}${card("No cartão", reaisO(cartao))}</div>
     ${comp}<button class="btn" onclick="R.novoMov()">Novo lançamento</button>
-    ${barras}<h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${lista}</div>`;
+    ${barras}</div><div><h2>Lançamentos</h2><p class="sub">Toque para editar ou apagar</p>${lista}</div></div></div>`;
 }
 
 function telaMov() {
@@ -392,7 +419,7 @@ function telaMov() {
   if (!S.movPag) S.movPag = "Cartão";
   const tipos = [["receita", "Receita", "var(--verde)"], ["gasto", "Gasto", "var(--vermelho)"], ["investimento", "Investimento", "var(--azul)"]];
   return `<div class="topo"><h1>${ed ? "Editar lançamento" : "Novo lançamento"}</h1><p>Receita, gasto ou investimento</p></div>
-  <div class="folha">
+  <div class="folha"><div class="form">
     <label class="rot">Tipo</label>${chips(tipos, tipo, "movTipo")}
     <label class="rot">Categoria</label>${chips(cats.map(c => [c, c, COR[tipo]]), S.movCat, "movCat")}
     <label class="rot">Valor</label><input id="mValor" inputmode="numeric" placeholder="R$ 0,00" value="${S.movValor || ""}" oninput="R.mask(this);R.guardar()">
@@ -404,37 +431,31 @@ function telaMov() {
     <button class="btn sec" onclick="R.aba('carteira')">Cancelar</button>
     ${ed && ed.mensal ? `<button class="btn sec" onclick="R.pararMov()">Parar de repetir a partir de ${telaData(S.movOcorr || ed.data).slice(3)}</button><button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarMov()">Apagar de todos os meses</button><p class="sub" style="margin-top:10px">Mudar um lançamento que repete muda todos os meses dele.</p>` : ""}
     ${ed && !ed.mensal ? `<button class="btn sec" style="color:var(--vermelho)" onclick="R.apagarMov()">Apagar lançamento</button>` : ""}
-  </div>`;
+  </div></div>`;
 }
 
 function telaAjustes() {
   const v = x => x > 0 ? reais(x) : "";
   const modelo = S.cfg.modelo || "";
   return `<div class="topo"><h1>Ajustes</h1><p onclick="R.nome()" style="cursor:pointer">Toque pra mudar seu nome: ${esc(S.cfg.nome || (S.user.email || "").split("@")[0])}  ✎</p></div>
-  <div class="folha">
+  <div class="folha"><div class="duas"><div>
     <h2>Conta</h2><p class="sub">${esc(S.user.email || "")}</p>
     <p style="color:var(--verde);font-weight:700;margin:4px 0 0">✓ Sincronizando com a nuvem</p>
     ${menu("Sair da conta", "Os dados continuam na nuvem", "R.sair()")}
-    <h2>Custos da moto</h2><p class="sub">Pra calcular o lucro por km</p>
-    <label class="rot">Modelo da moto</label><select id="aModelo" onchange="R.modelo(this.value)"><option value="">Escolher modelo…</option>${MOTOS.map((m, i) => `<option value="${i}" ${modelo === m[0] ? "selected" : ""}>${m[0]}</option>`).join("")}</select>
-    <label class="rot">Preço do litro da gasolina</label><input id="aPreco" inputmode="numeric" value="${v(cfgN("precoGasolina"))}" oninput="R.mask(this)" placeholder="R$ 0,00">
-    <label class="rot">Quantos km a moto faz com 1 litro</label><input id="aKml" inputmode="decimal" value="${cfgN("kmPorLitro") > 0 ? dec(cfgN("kmPorLitro"), 0) : ""}" placeholder="0">
-    <label class="rot">Reserva de manutenção por km — ex.: R$ 0,10</label><input id="aMan" inputmode="numeric" value="${v(cfgN("manutPorKm"))}" oninput="R.mask(this)" placeholder="R$ 0,00">
-    <p style="font-weight:700;margin:12px 0 0">${custoKm() > 0 ? "Custo estimado: " + reais(custoKm()) + " por km rodado" : "Custo ainda não configurado"}</p>
-    <button class="btn" onclick="R.salvarCustos()">Salvar custos</button>
+    <h2>Aparência</h2>${chips([["0", "Igual ao celular"], ["1", "Claro"], ["2", "Escuro"]], String(S.tema), "tema")}
+    </div><div>
     <h2>Carteira</h2><p class="sub">Como o iFood entra na Carteira</p>
     ${chips([["sim", "Entra sozinho"], ["nao", "Não entra"]], ifoodNaCarteira() ? "sim" : "nao", "ifood")}
     <p class="sub" style="margin-top:8px">Não lance a fatura do cartão como gasto: ela é o pagamento do que já foi lançado.</p>
     <label class="rot">Gastos da moto são pagos com</label>${chips(PAGS.map(p => [p, p]), pagMoto(), "pagMoto")}
-    <h2>Aparência</h2>${chips([["0", "Igual ao celular"], ["1", "Claro"], ["2", "Escuro"]], String(S.tema), "tema")}
     <h2>No iPhone</h2><p class="sub">Pra virar um ícone: no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".</p>
-  </div>`;
+  </div></div></div>`;
 }
 
 function barra() {
   const b = (aba, ico, nome) => `<button class="${S.aba === aba || (aba === "carteira" && S.aba === "mov") ? "on" : ""}" onclick="R.aba('${aba}')">${ico}<span>${nome}</span></button>`;
-  return `<nav class="barra">${b("inicio", ICO.inicio, "Início")}${b("financeiro", ICO.fin, "Financeiro")}<span style="width:80px"></span>${b("carteira", ICO.cart, "Carteira")}${b("ajustes", ICO.ajus, "Ajustes")}</nav>
-  <button class="mais" aria-label="Registrar" onclick="R.registrar()">${ICO.mais}</button>`;
+  return `<nav class="barra"><div class="logo"><img src="icon-192.png" alt="">Radar R$/km</div>${b("inicio", ICO.inicio, "Início")}${b("financeiro", ICO.fin, "Financeiro")}<span class="espaco" style="width:80px"></span>${b("carteira", ICO.cart, "Carteira")}${b("ajustes", ICO.ajus, "Ajustes")}</nav>
+  <button class="mais" aria-label="Registrar" onclick="R.registrar()">${ICO.mais}<span class="maisTxt">Registrar</span></button>`;
 }
 
 function render() {
@@ -455,6 +476,9 @@ window.R = {
   mask(el) { const d = el.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 11); el.value = d ? reais(parseInt(d, 10) / 100) : ""; },
   async entrar() {
     const p = new GoogleAuthProvider();
+    // Aberto pelo ícone da tela de início (iPhone): janelinha não funciona, vai direto
+    const icone = window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+    if (icone) { await signInWithRedirect(auth, p); return; }
     try { await signInWithPopup(auth, p); }
     catch (e) {
       if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment", "auth/cancelled-popup-request"].includes(e.code)) await signInWithRedirect(auth, p);
